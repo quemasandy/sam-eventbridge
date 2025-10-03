@@ -7,7 +7,7 @@ Resources:
       Type: 'AWS::Serverless::Function'
       Properties:
         Handler: handler.putOrder
-        Runtime: nodejs14.x
+        Runtime: nodejs18.x
         CodeUri: .
         Policies:
           - Statement:
