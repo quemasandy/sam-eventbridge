@@ -12,6 +12,32 @@
           "stage": "dev"
         }
       ]
+    },
+    {
+      "type": "cloudformation",
+      "title": "pizzaHat",
+      "timeOffsetInMs": 0,
+      "awsProfile": "andy-dev",
+      "stacks": [
+        {
+          "region": "us-east-2",
+          "stackName": "pizzaHat",
+          "stage": "dev"
+        }
+      ]
+    },
+    {
+      "type": "cloudformation",
+      "title": "thaiLand",
+      "timeOffsetInMs": 0,
+      "awsProfile": "andy-dev",
+      "stacks": [
+        {
+          "region": "us-east-2",
+          "stackName": "thaiLand",
+          "stage": "dev"
+        }
+      ]
     }
   ]
 }
