@@ -1,0 +1,17 @@
+{
+  "serverlessConsole.services": [
+    {
+      "type": "cloudformation",
+      "title": "eventbridge",
+      "timeOffsetInMs": 0,
+      "awsProfile": "andy-dev",
+      "stacks": [
+        {
+          "region": "us-east-2",
+          "stackName": "orderManager",
+          "stage": "dev"
+        }
+      ]
+    }
+  ]
+}

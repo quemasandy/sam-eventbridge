@@ -22,6 +22,33 @@ Resources:
             Properties:
               Path: /order
               Method: POST
+              Auth:
+                ApiKeyRequired: true
+
+  OrderApiKey:
+    Type: AWS::ApiGateway::ApiKey
+    Properties:
+      Enabled: true
+      Name: OrderManagerApiKey
+      StageKeys:
+        - RestApiId: !Ref ServerlessRestApi
+          StageName: Prod
+
+  OrderUsagePlan:
+    Type: AWS::ApiGateway::UsagePlan
+    Properties:
+      ApiStages:
+        - ApiId: !Ref ServerlessRestApi
+          Stage: Prod
+      Description: Usage plan for Order Manager API
+      UsagePlanName: OrderManagerUsagePlan
+
+  OrderUsagePlanKey:
+    Type: AWS::ApiGateway::UsagePlanKey
+    Properties:
+      KeyId: !Ref OrderApiKey
+      KeyType: API_KEY
+      UsagePlanId: !Ref OrderUsagePlan
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
@@ -30,3 +57,7 @@ Outputs:
   TestingAPI:
     Description: "API Gateway endpoint URL for Prod stage for Order function"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/order"
+  
+  ApiKeyID:
+    Description: "API Key ID for authentication"
+    Value: !Ref OrderApiKey
