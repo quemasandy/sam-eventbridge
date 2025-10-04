@@ -1,60 +1,67 @@
+# Versión del formato de CloudFormation template
 AWSTemplateFormatVersion: '2010-09-09'
+# Transform indica que este template usa AWS SAM (Serverless Application Model)
 Transform: 'AWS::Serverless-2016-10-31'
 
 Resources:
 
+  # Función Lambda que recibe órdenes vía API Gateway y las publica en EventBridge
   PutOrderFunction:
     Type: 'AWS::Serverless::Function'
     Properties:
-      Handler: handler.putOrder
-      Runtime: nodejs18.x
-      CodeUri: .
-      Policies:
+      Handler: handler.putOrder  # Función handler en el archivo handler.js
+      Runtime: nodejs18.x  # Versión de Node.js
+      CodeUri: .  # Directorio con el código fuente
+      Policies:  # Permisos IAM para la función
         - Statement:
-            - Sid: EventBridgePutEvents 
+            - Sid: EventBridgePutEvents
               Effect: "Allow"
-              Action: 
-                - "events:PutEvents"
-              Resource: "*"
-      Events:
+              Action:
+                - "events:PutEvents"  # Permite publicar eventos en EventBridge
+              Resource: "*"  # En cualquier event bus
+      Events:  # Eventos que disparan esta función
         PutOrderAPI:
-          Type: Api
+          Type: Api  # Tipo: API Gateway REST API
           Properties:
-            Path: /order
-            Method: POST
+            Path: /order  # Ruta del endpoint
+            Method: POST  # Método HTTP
             Auth:
-              ApiKeyRequired: true
+              ApiKeyRequired: true  # Requiere API Key para autenticación
 
+  # API Key para autenticar requests al API Gateway
   OrderApiKey:
     Type: AWS::ApiGateway::ApiKey
     Properties:
-      Enabled: true
+      Enabled: true  # La key está activa
       Name: OrderManagerApiKey
-      StageKeys:
-        - RestApiId: !Ref ServerlessRestApi
-          StageName: !Ref ServerlessRestApiProdStage   # 👈 referencia al Stage real generado por SAM
+      StageKeys:  # Asocia la key con el stage de API Gateway
+        - RestApiId: !Ref ServerlessRestApi  # Referencia al API creado por SAM
+          StageName: !Ref ServerlessRestApiProdStage  # Referencia al Stage real generado por SAM
 
+  # Usage Plan: define límites y cuotas de uso del API
   OrderUsagePlan:
     Type: AWS::ApiGateway::UsagePlan
     Properties:
-      ApiStages:
+      ApiStages:  # Stages del API incluidos en el plan
         - ApiId: !Ref ServerlessRestApi
           Stage: !Ref ServerlessRestApiProdStage
       Description: Usage plan for Order Manager API
       UsagePlanName: OrderManagerUsagePlan
 
+  # Asocia la API Key con el Usage Plan
   OrderUsagePlanKey:
     Type: AWS::ApiGateway::UsagePlanKey
     Properties:
-      KeyId: !Ref OrderApiKey
+      KeyId: !Ref OrderApiKey  # ID de la API Key
       KeyType: API_KEY
-      UsagePlanId: !Ref OrderUsagePlan
+      UsagePlanId: !Ref OrderUsagePlan  # ID del Usage Plan
 
+# Valores de salida después del despliegue
 Outputs:
   TestingAPI:
     Description: "API Gateway endpoint URL for Prod stage for Order function"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/order"
-  
+
   ApiKeyID:
     Description: "API Key ID for authentication"
-    Value: !Ref OrderApiKey
+    Value: !Ref OrderApiKey  # Muestra el ID de la API Key creada
