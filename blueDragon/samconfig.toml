@@ -5,5 +5,5 @@ resolve_s3 = true
 s3_prefix = "blueDragon"
 region = "us-east-2"
 capabilities = "CAPABILITY_IAM"
-parameter_overrides = "BlueDragonURL=\"https://webhook.site/23daa040-5bf4-4459-8877-37c6bb8bc9b0\""
+parameter_overrides = "BlueDragonURL=\"https://webhook.site/23daa040-5bf4-4459-8877-37c6bb8bc9b0\" BlueDragonApiKeyHeaderName=\"x-api-key\" BlueDragonApiKeySecretName=\"blue-dragon/api-key/dev\" BlueDragonApiKeySecretKey=\"apiKey\""
 image_repositories = []

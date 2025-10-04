@@ -7,6 +7,17 @@ Transform: AWS::Serverless-2016-10-31
 Parameters:
   BlueDragonURL:
     Type: String  # URL del API externo de terceros al que se enviarán los eventos
+  BlueDragonApiKeyHeaderName:
+    Type: String
+    Default: x-api-key
+    Description: Nombre del header donde se enviará la API key
+  BlueDragonApiKeySecretName:
+    Type: String
+    Description: Nombre o ARN del secreto en Secrets Manager que contiene la API key
+  BlueDragonApiKeySecretKey:
+    Type: String
+    Default: apiKey
+    Description: Clave JSON dentro del SecretString donde se guarda la API key
 
 Resources:
 
@@ -18,8 +29,9 @@ Resources:
       Description: Connection with an API key
       AuthParameters:
         ApiKeyAuthParameters:
-          ApiKeyName: ApiKeyName  # Nombre del header donde se enviará la API key
-          ApiKeyValue: BlueDragonApiKeyValue  # Valor de la API key para autenticarse
+          ApiKeyName: !Ref BlueDragonApiKeyHeaderName  # Nombre del header real (p. ej., x-api-key)
+          # Referencia dinámica a Secrets Manager; espera un SecretString con la clave JSON indicada
+          ApiKeyValue: !Sub "{{resolve:secretsmanager:${BlueDragonApiKeySecretName}:SecretString:${BlueDragonApiKeySecretKey}}}"
 
   # API Destination: configuración del endpoint HTTP que EventBridge invocará
   BlueDragonApiDestination:
