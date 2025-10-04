@@ -7,7 +7,7 @@ Resources:
     Type: 'AWS::Serverless::Function'
     Properties:
       Handler: handler.pizzaHat
-      Runtime: nodejs18.x
+      Runtime: nodejs20.x
       CodeUri: .   
   
   PizzaHatInvokePermission:

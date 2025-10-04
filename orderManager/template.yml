@@ -10,7 +10,7 @@ Resources:
     Type: 'AWS::Serverless::Function'
     Properties:
       Handler: handler.putOrder  # Función handler en el archivo handler.js
-      Runtime: nodejs18.x  # Versión de Node.js
+      Runtime: nodejs20.x  # Versión de Node.js
       CodeUri: .  # Directorio con el código fuente
       Policies:  # Permisos IAM para la función
         - Statement:
