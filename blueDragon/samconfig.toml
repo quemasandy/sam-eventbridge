@@ -1,0 +1,9 @@
+version = 0.1
+[default.deploy.parameters]
+stack_name = "blueDragon"
+resolve_s3 = true
+s3_prefix = "blueDragon"
+region = "us-east-2"
+capabilities = "CAPABILITY_IAM"
+parameter_overrides = "BlueDragonURL=\"https://webhook.site/23daa040-5bf4-4459-8877-37c6bb8bc9b0\""
+image_repositories = []

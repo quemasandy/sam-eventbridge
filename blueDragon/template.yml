@@ -1,65 +1,72 @@
+# Versión del formato de CloudFormation template
 AWSTemplateFormatVersion: '2010-09-09'
+# Transform indica que este template usa AWS SAM (Serverless Application Model)
 Transform: AWS::Serverless-2016-10-31
 
+# Parámetros que se solicitan durante el despliegue
 Parameters:
   BlueDragonURL:
-    Type: String
+    Type: String  # URL del API externo de terceros al que se enviarán los eventos
 
 Resources:
 
+  # Conexión para autenticación con el API externo
   BlueDragonConnection:
     Type: AWS::Events::Connection
     Properties:
-      AuthorizationType: API_KEY
+      AuthorizationType: API_KEY  # Tipo de autenticación: API Key
       Description: Connection with an API key
       AuthParameters:
         ApiKeyAuthParameters:
-          ApiKeyName: ApiKeyName
-          ApiKeyValue: BlueDragonApiKeyValue
+          ApiKeyName: ApiKeyName  # Nombre del header donde se enviará la API key
+          ApiKeyValue: BlueDragonApiKeyValue  # Valor de la API key para autenticarse
 
+  # API Destination: configuración del endpoint HTTP que EventBridge invocará
   BlueDragonApiDestination:
     Type: AWS::Events::ApiDestination
     Properties:
       Name: BlueDragonApiDestination
-      ConnectionArn: !GetAtt BlueDragonConnection.Arn
-      InvocationEndpoint: !Ref BlueDragonURL
-      HttpMethod: POST
-      InvocationRateLimitPerSecond: 10
+      ConnectionArn: !GetAtt BlueDragonConnection.Arn  # Referencia a la conexión de autenticación creada arriba
+      InvocationEndpoint: !Ref BlueDragonURL  # URL del endpoint (viene del parámetro)
+      HttpMethod: POST  # Método HTTP a usar para invocar el API
+      InvocationRateLimitPerSecond: 10  # Límite de invocaciones por segundo (throttling)
 
+  # Regla de EventBridge que filtra eventos y los envía al API Destination
   BlueDragonEventRule:
     Type: AWS::Events::Rule
     Properties:
       Description: BlueDragon EventRule
-      EventPattern:
+      EventPattern:  # Patrón para filtrar qué eventos activarán esta regla
         source:
-          - custom.orderManager
+          - custom.orderManager  # Solo eventos del servicio orderManager
         detail-type:
-          - order
+          - order  # Solo eventos de tipo "order"
         detail:
           restaurantName:
-            - blueDragon
-      Targets:
-        - Arn: !GetAtt BlueDragonApiDestination.Arn
-          RoleArn: !GetAtt EventBridgeTargetRole.Arn
-          Id: BlueDragonApiDestination
+            - blueDragon  # Solo órdenes para el restaurante "blueDragon"
+      Targets:  # A dónde se envían los eventos que coinciden con el patrón
+        - Arn: !GetAtt BlueDragonApiDestination.Arn  # ARN del API Destination
+          RoleArn: !GetAtt EventBridgeTargetRole.Arn  # Rol IAM que permite invocar el API
+          Id: BlueDragonApiDestination  # Identificador único del target
 
+  # Rol IAM que otorga permisos a EventBridge para invocar el API Destination
   EventBridgeTargetRole:
     Type: AWS::IAM::Role
     Properties:
-      AssumeRolePolicyDocument:
+      AssumeRolePolicyDocument:  # Define quién puede asumir este rol
         Version: '2012-10-17'
         Statement:
           - Effect: Allow
             Principal:
               Service:
-                - events.amazonaws.com
+                - events.amazonaws.com  # El servicio EventBridge puede asumir este rol
             Action:
-              - sts:AssumeRole
-      Policies:
+              - sts:AssumeRole  # Acción para asumir el rol
+      Policies:  # Políticas asociadas al rol
         - PolicyName: AllowAPIdestinationAccess
           PolicyDocument:
             Version: '2012-10-17'
             Statement:
               - Effect: Allow
-                Action: events:InvokeApiDestination
-                Resource: !GetAtt BlueDragonApiDestination.Arn
+                Action: events:InvokeApiDestination  # Permiso para invocar API Destinations
+                Resource: !GetAtt BlueDragonApiDestination.Arn  # Solo puede invocar este API Destination específico
