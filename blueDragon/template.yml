@@ -1,3 +1,5 @@
+## ya lo estudie ##
+
 # Versión del formato de CloudFormation template
 AWSTemplateFormatVersion: '2010-09-09'
 # Transform indica que este template usa AWS SAM (Serverless Application Model)
@@ -82,3 +84,5 @@ Resources:
               - Effect: Allow
                 Action: events:InvokeApiDestination  # Permiso para invocar API Destinations
                 Resource: !GetAtt BlueDragonApiDestination.Arn  # Solo puede invocar este API Destination específico
+
+## ya lo estudie ##
